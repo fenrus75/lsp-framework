@@ -13,7 +13,7 @@ lspgen_exe = executable('lspgen',
 # 2. Run the generator (output goes to meson.current_build_dir())
 lsp_generated = custom_target('lspgen_run',
   output: ['types.h', 'messages.h', 'types.cpp'],
-  command: ['sh', '-c', 'cd "$1" && "$2" "$3"', 'sh', '@OUTDIR@', lspgen_exe, join_paths(meson.current_source_dir(), 'lspgen', 'metaModel.json')]
+  command: ['sh', '-c', 'ln -sf . "$1/lsp" && cd "$1" && "$2" "$3"', 'sh', '@OUTDIR@', lspgen_exe, join_paths(meson.current_source_dir(), 'lspgen', 'metaModel.json')]
 )
 
 # 3. Build liblsp
@@ -34,7 +34,7 @@ liblsp = static_library('lsp',
   include_directories: [
     include_directories('.')
   ],
-  cpp_args: ['-Wno-sign-conversion', '-Wno-float-conversion']
+  cpp_args: ['-Wno-sign-conversion', '-Wno-float-conversion', '-DLSP_MESSAGE_DEBUG_LOG=0']
 )
 
 # 4. Expose the dependency

@@ -79,6 +79,12 @@ struct Process::Impl final : public io::Stream{
 		{
 			dup2(inPipe[0], STDIN_FILENO);
 			dup2(outPipe[1], STDOUT_FILENO);
+			
+			int devnull = open("/dev/null", O_WRONLY);
+			if (devnull != -1) {
+				dup2(devnull, STDERR_FILENO);
+				close(devnull);
+			}
 
 			close(inPipe[0]);
 			close(inPipe[1]);

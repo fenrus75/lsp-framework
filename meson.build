@@ -40,6 +40,7 @@ liblsp = static_library('lsp',
 # 4. Expose the dependency
 lsp_dep = declare_dependency(
   link_with: liblsp,
+  sources: [lsp_generated[0], lsp_generated[1]],
   include_directories: [
     include_directories('.')
   ]

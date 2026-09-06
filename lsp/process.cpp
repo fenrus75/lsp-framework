@@ -27,6 +27,8 @@ struct Process::Impl final : public io::Stream{
 
 	Impl(const std::string& executable, const ArgList& args)
 	{
+		signal(SIGPIPE, SIG_IGN);
+
 		int inPipe[2]; // Parent writes to child (stdin)
 		int outPipe[2]; // Parent reads from child (stdout)
 		int errPipe[2]; // Used to inform parent about exec errors
@@ -223,6 +225,11 @@ struct Process::Impl final : public io::Stream{
 				throw io::Error(std::string("Failed to read from process stdout: ") + strerror(errno));
 			}
 
+			if(bytesRead == 0)
+			{
+				throw io::Error("Failed to read from process stdout: End of file (pipe closed)");
+			}
+
 			totalBytesRead += static_cast<std::size_t>(bytesRead);
 		}
 	}
@@ -241,6 +248,11 @@ struct Process::Impl final : public io::Stream{
 					continue;
 
 				throw io::Error(std::string("Failed to write to process stdin: ") + strerror(errno));
+			}
+
+			if(bytesWritten == 0)
+			{
+				throw io::Error("Failed to write to process stdin: Zero bytes written (pipe closed)");
 			}
 
 			totalBytesWritten += static_cast<std::size_t>(bytesWritten);
